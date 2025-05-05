@@ -1,4 +1,4 @@
-INSTDIR=/Users/jairiley/Desktop/BOW_Ngrams/PCFG/incremental-top-down-parser
+INSTDIR=/content/incremental-top-down-parser
 CC= gcc
 CFLAGS= -g $(INCLUDEDIRS)
 PARLIB= $(INSTDIR)/lib/libparse.a
