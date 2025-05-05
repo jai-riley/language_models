@@ -1,0 +1,2 @@
+(TOP (S (NP (DT This)) (VP (VBZ is) (NP (NP (DT a) (NN sentence)) (PP (IN with) (NP (NP (NNS words)) (PP (IN in) (NP (PRP it)))))) ) (. .)))
+(TOP (SQ (VBP Do) (RB not) (NP (DT all) (NNS sentences)) (VP (VB have) (NP (NP (NNS words)) (PP (IN in) (NP (PRP them))))) (. ?)))
