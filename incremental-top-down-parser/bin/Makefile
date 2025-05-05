@@ -18,4 +18,6 @@ $(PARLIB): $(LIBDEP) $(INCS)
 
 $(OBJS): $(INCS) Makefile ../Makedefs
 
+clean:
+	rm -f $(SRCS) *.o *~
 
