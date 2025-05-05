@@ -3,7 +3,7 @@ CC= gcc
 CFLAGS= -g $(INCLUDEDIRS)
 PARLIB= $(INSTDIR)/lib/libparse.a
 PARINCLUDE= $(INSTDIR)/include
-LIBS= $(PARLIB)
+LIBS= $(PARLIB) -lm
 INCLUDEDIRS= -I$(PARINCLUDE)
 INCS= \
 $(PARINCLUDE)/pstruct.h \
