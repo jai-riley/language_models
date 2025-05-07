@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -7,8 +6,6 @@ This script loads the trained language models and uses them to extract
 surprisal values for the human reading data.
 @author: danny
 """
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import argparse
 import torch
@@ -35,10 +32,11 @@ parser.add_argument('-dict_loc', type=str, default='/content/language_models/tra
 parser.add_argument('-output_file', type=str, default='/content/language_models/transformer/surprisal_output.csv')
 args = parser.parse_args()
 
+# Set device to CPU
+device = torch.device("cpu")
+
 # Pretrained model & data
 model_loc = args.model_loc
-# model_loc = '/home/jairiley/projects/def-cepp/jairiley/transformer/word/nwp_model_1_11711340'
-# os.path.join(model_dir, 'wiki_train_word_indices')
 dict_loc = args.dict_loc
 data_loc = args.data_loc
 
@@ -61,12 +59,15 @@ def calc_surprisal(data_loc, model):
         for line in file:
             sent.append(['<s>'] + line.strip().split() + ['</s>'])
 
-    original_sent = [s[1:-1] for s in sent]
+
+    original_sent = [s[1:] for s in sent ]
+
+
     sent_idx, lengths = word_2_index(sent, len(sent), nwp_dict)
 
-    # Move tensors to CUDA
-    sent_idx = torch.FloatTensor(sent_idx).cuda()
-    lengths = torch.LongTensor(lengths).cuda()
+    # Move tensors to CPU
+    sent_idx = torch.FloatTensor(sent_idx).to(device)
+    lengths = torch.LongTensor(lengths).to(device)
 
     predictions, targets = model(sent_idx, lengths)
 
@@ -76,25 +77,31 @@ def calc_surprisal(data_loc, model):
     surprisal = surprisal.detach().cpu().numpy()
 
     targets = targets.cpu().numpy()
-    surprisal = [s[:l - 2] for s, l in zip(surprisal, lengths.cpu())]
-    targets = [t[1:l - 1] for t, l in zip(targets, lengths.cpu())]
-
+    surprisal = [s[:l-1] for s, l in zip(surprisal, lengths.cpu())]  # skip <s>, drop </s>
+    targets = [t[:l-1] for t, l in zip(targets, lengths.cpu())]  
     return surprisal, targets, original_sent
 
 def clean_surprisal(surprisal, targets, original_sent):
-    keep = [[True] + [not np.isnan(s[ind - 1]) for ind in range(1, len(s))] for s in surprisal]
-    surprisal = [[s[x] for x in range(len(s)) if k[x]] for s, k in zip(surprisal, keep)]
-    targets = [[t[x] for x in range(len(t)) if k[x]] for t, k in zip(targets, keep)]
-    original_sent = [[w for i, w in enumerate(s) if k[i]] for s, k in zip(original_sent, keep)]
+    # print(surprisal,'\n',targets,'\n', original_sent)
+    # Create mask where surprisal is not NaN
+    keep = [[not np.isnan(val) for val in s] for s in surprisal]
+
+    # Apply the mask
+    surprisal = [[s[i] for i in range(len(s)) if k[i]] for s, k in zip(surprisal, keep)]
+    targets = [[t[i] for i in range(len(t)) if k[i]] for t, k in zip(targets, keep)]
+    original_sent = [[w[i] for i in range(len(w)) if k[i]] for w, k in zip(original_sent, keep)]
+
 
     # Flatten
     rows = [(i+1, j+1, val) for i, sent in enumerate(surprisal) for j, val in enumerate(sent)]
     words = [w for sent in targets for w in sent]
     orig_words = [w for sent in original_sent for w in sent]
 
+    # print(rows)
     df = pd.DataFrame(rows, columns=["sent_nr", "word_pos", "surprisal"])
     df["item"] = df.sent_nr * 100 + df.word_pos
     df["word"] = index_2_word(nwp_dict, [[w] for w in words])
+    # print(df["word"])
     df["original word"] = orig_words
 
     return df
@@ -103,14 +110,13 @@ def clean_surprisal(surprisal, targets, original_sent):
 model_config = {
     'embed': {'n_embeddings': dict_size, 'embedding_dim': 400, 'sparse': False, 'padding_idx': 0},
     'tf': {'in_size': 400, 'fc_size': 1024, 'n_layers': 2, 'h': 8, 'max_len': 54},
-    'cuda': True
+    'cuda': False # Removed for CPU
 }
-model = nwp_transformer(model_config)
 
-# Load weights
+# Load model
 model = nwp_transformer(model_config)
-model.load_state_dict(torch.load(model_loc, map_location='cuda'))
-model.cuda()  # Move model to GPU
+model.load_state_dict(torch.load(model_loc, map_location=device))
+model.to(device)
 model.eval()
 
 # Calculate
