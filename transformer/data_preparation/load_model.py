@@ -21,24 +21,25 @@ import os
 from collections import defaultdict
 
 # Add your project functions path
-sys.path.append('/home/jairiley/projects/def-cepp/jairiley/transformer/functions')
+sys.path.append('/content/language_models/transformer/functions')
 
 from encoders import nwp_transformer  # make sure this function is defined there
 from prep_text import word_2_index
 
 # Argument parser
 parser = argparse.ArgumentParser(description='Get file name')
-parser.add_argument('-data_loc', type=str, default='/home/jairiley/projects/def-cepp/jairiley/transformer/wiki_validation_pos.txt')
+parser.add_argument('-data_loc', type=str, default='/content/language_models/transformer/wiki_validation_pos.txt')
+parser.add_argument('-model_loc', type=str, default='/content/language_models/transformer/nwp_model_1_11711340')
 parser.add_argument('-output_id', type=str, default='surprisal_output')
-parser.add_argument('-output_file', type=str, default='/home/jairiley/projects/def-cepp/jairiley/transformer/surprisal_output.csv')
+parser.add_argument('-dict_loc', type=str, default='/content/language_models/transformer/wiki_train_word_pos_indices')
+parser.add_argument('-output_file', type=str, default='/content/language_models/transformer/surprisal_output.csv')
 args = parser.parse_args()
 
 # Pretrained model & data
-model_dir = os.environ.get('SLURM_TMPDIR', '/default/path')  # fallback if not set
-model_loc = os.path.join(model_dir, 'nwp_model_1_11711340')
+model_loc = args.model_loc
 # model_loc = '/home/jairiley/projects/def-cepp/jairiley/transformer/word/nwp_model_1_11711340'
 # os.path.join(model_dir, 'wiki_train_word_indices')
-dict_loc = os.path.join(model_dir, 'wiki_train_pos_indices')
+dict_loc = args.dict_loc
 data_loc = args.data_loc
 
 def load_obj(loc):
