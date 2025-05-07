@@ -129,4 +129,4 @@ df.sent_nr = df.sent_nr.astype(int)
 df.word_pos = df.word_pos.astype(int)
 
 df.to_csv(args.output_file, index=False)
-print(f"Saved surprisal values to {args.output_file}")
+# print(f"Saved surprisal values to {args.output_file}")
