@@ -1,0 +1,4 @@
+/usr/local/lib/python3.11/dist-packages/nose/case.py
+-> change import collections to import collections.abc as collections
+/usr/local/lib/python3.11/dist-packages/nose/suite.py
+-> change import collections to import collections.abc as collections
