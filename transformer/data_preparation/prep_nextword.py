@@ -9,6 +9,12 @@ from collections import defaultdict, Counter
 import numpy as np
 import pickle
 import os
+import argparse
+
+parser = argparse.ArgumentParser(description = 'Create and run an articulatory feature classification DNN')
+parser.add_argument('-type', type = str, default = 'word', help = 'word, pos, or word_pos')
+args = parser.parse_args()
+print(args.type)
 # this script saves 3 files, training data with <s> and </s> tokens, the dictionary
 # mapping tokens to embedding indices and the word log-frequency dictionary.
 
@@ -81,52 +87,27 @@ def preprocess(train_loc, preproc_train_loc, emb_dict_loc, freq_dict_loc):
 # preprocess(train_loc, preproc_train_loc, emb_dict_loc, freq_dict_loc)
 
 # location of the training word database
-model_dir = os.environ.get('SLURM_TMPDIR')
-train_loc = '/home/jairiley/projects/def-cepp/jairiley/wiki_train_pos.txt'
+model_dir = '/content/language_models/transformer'
+print(model_dir)
+train_loc = f'/content/language_models//wiki_train_{args.type}.txt'
 
-preproc_train_loc = '/home/jairiley/projects/def-cepp/jairiley/transformer/wiki_train_pos.txt'
-# os.path.join(model_dir, 'wiki_train_word_indices')
-emb_dict_loc = os.path.join(model_dir, 'wiki_train_pos_indices')
+preproc_train_loc = f'/content/language_models/wiki_train_{args.type}.txt'
+# os.path.join(model_dir, 'wiki_train_{args.type}_indices')
+emb_dict_loc = os.path.join(model_dir, f'wiki_train_{args.type}_indices')
 
-freq_dict_loc = os.path.join(model_dir, 'wiki_train_pos_freq')
-
-preprocess(train_loc, preproc_train_loc, emb_dict_loc, freq_dict_loc)
-
-
-# location of the validation word database
-train_loc = '/home/jairiley/projects/def-cepp/jairiley/wiki_validation_word_pos.txt'
-
-preproc_train_loc = '/home/jairiley/projects/def-cepp/jairiley/transformer/wiki_validation_pos.txt'
-
-emb_dict_loc = os.path.join(model_dir, 'wiki_train_validation_pos_indices')
-
-freq_dict_loc = os.path.join(model_dir, 'wiki_train_validation_pos_freq')
+freq_dict_loc = os.path.join(model_dir, f'wiki_train_{args.type}_freq')
 
 preprocess(train_loc, preproc_train_loc, emb_dict_loc, freq_dict_loc)
 
 
+# location of the validation {args.type} database
+train_loc = f'/content/language_models/wiki_validation_{args.type}.txt'
 
-# # location of the training pos database
-# train_loc = '/Users/jairiley/Desktop/BOW_Ngrams/corpus/wiki_train_word_pos.txt'
+preproc_train_loc = f'/content/language_models/wiki_validation_{args.type}.txt'
 
-# preproc_train_loc = '/Users/jairiley/Desktop/BOW_Ngrams/transformer/wiki_train_word_pos.txt'
+emb_dict_loc = os.path.join(model_dir, f'wiki_train_validation_{args.type}_indices')
 
-# emb_dict_loc = '/Users/jairiley/Desktop/BOW_Ngrams/transformer/wiki_train_word_pos_indices'
+freq_dict_loc = os.path.join(model_dir, f'wiki_train_validation_{args.type}_freq')
 
-# freq_dict_loc = '/Users/jairiley/Desktop/BOW_Ngrams/transformer/wiki_train_word_pos_freq'
-
-# preprocess(train_loc, preproc_train_loc, emb_dict_loc, freq_dict_loc)
-
-
-# # location of the validation pos database
-# train_loc = '/Users/jairiley/Desktop/BOW_Ngrams/corpus/wiki_validation_word_pos.txt'
-
-# preproc_train_loc = '/Users/jairiley/Desktop/BOW_Ngrams/transformer/wiki_validation_word_pos.txt'
-
-# emb_dict_loc = '/Users/jairiley/Desktop/BOW_Ngrams/transformer/wiki_train_validation_word_pos_indices'
-
-# freq_dict_loc = '/Users/jairiley/Desktop/BOW_Ngrams/transformer/wiki_train_validation_word_pos_freq'
-
-# preprocess(train_loc, preproc_train_loc, emb_dict_loc, freq_dict_loc)
-
+preprocess(train_loc, preproc_train_loc, emb_dict_loc, freq_dict_loc)
 
